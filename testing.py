@@ -180,10 +180,10 @@ def lex(fileContents):
             string += token
             token = ""
 
-    print(tokens)  # for debugging purposes only!  
+    # print(tokens)  # for debugging purposes only!  
     # print(expr) # for debugging purposes only!  
-    return '' # for debugging purposes only!  
-    # return tokens
+    # return '' # for debugging purposes only!  
+    return tokens
 
 # -------------------------------------------------- EVALUATEEXPRESSION METHOD --------------------------------------------------
 # this method evaluates the expresions formed in the lex method. it takes expr from the lex method as a parameter
@@ -195,7 +195,7 @@ def evaluateExpression(expr):
 def assignVariable(varName, varValue):
     
     # 4: means that it will remove "VAR:" from the stored value FOR NUM DATA TYPE
-    symbolTable[varName] = varValue 
+    symbolTable[varName[4:]] = varValue 
 
     # print("ASSIGNVARIABLE METHOD, VARNAME: ", varName) # for debugging purposes only!
     # print("ASSIGNVARIABLE METHOD, VARVALUE: ", varValue) # for debugging purposes only!
@@ -211,7 +211,6 @@ def getVariable(varName):
         return symbolTable[varName] # for debugging purposes only!
     else:
         return "VARIABLE ERROR: Undefined variable."
-        exit()
 
 # -------------------------------------------------- GETINPUT METHOD --------------------------------------------------
 # this method retrieves and processes the input from the user
@@ -226,6 +225,12 @@ def parse(toks):
     
     i = 0
     while(i < len(toks)):
+
+        # the i+=(NUM) line means how many tokens the parses will get
+
+        # this looks for the ENDIF statement
+        if toks[i] == "ENDIF":
+            i+=1
 
         # this takes the tokens and deciphers the keywords so that it will
         # know what operation to do
@@ -280,14 +285,18 @@ def parse(toks):
 
             elif toks[i+2][0:3] == "VAR":
                 assignVariable(toks[i], getVariable(toks[i+2]))
-
             i += 3
 
         # this condition is for input variables
         elif toks[i] + " " + toks[i+1][0:6] + " " + toks[i+2][0:3] == "INPUT STRING VAR":
             getInput(toks[i+1][7:],toks[i+2][4:])
-
             i+=3
+
+        # this condition parses IF conditions
+        elif toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:3] + " " + toks[i+4]== "IF NUM EQEQ NUM THEN":
+            if toks[i+1][4:] == toks[i+3][4:]:
+                print("True")
+            i+=5
 
     # print(symbolTable) # for debugging purposes only!
 
