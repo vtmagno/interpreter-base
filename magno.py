@@ -33,20 +33,53 @@ def lexer(fileContents):
     fileContents = list(fileContents) # turn the fileContents strings into a list
     token = "" # the result of parsed characters
     string = "" # string variable is the one that takes characters and strings inside brackets and treats them as a whole string
+    foundBracket = 0 # searches for quotation marks
 
     for char in fileContents:
 
         token += char
 
-        if token == "CREATE":
-            print("FOUND CREATE!") # for debugging purposes only. signifies that the word CREATE
+        if token == " ":
+            if foundBracket == 0:
+                token = ""
+            else:
+                token = " "
+
+        # condition satisfied if token parsed evaluates to GIVEYOU!
+        elif token == "GIVEYOU!":
+            listOfTokens.append("GIVEYOU!")
+            # print("GIVEYOU!") # for debugging purposes only. signifies that the word CREATE
             token = ""
 
-        elif token == " ":
+        # this looks for [], which signifies that the following will be a string
+        # foundBracket = 0, every letter we find is part of a keyword or variable
+        # foundBracket = 1, every letter we find is part of a string
+        elif token == "[":
+            if foundBracket == 0:
+                # print("FOUND A [ - lexer()") # for debugging purposes only. signifies that a [ is found
+                foundBracket = 1
+            elif foundBracket == 1:
+                listOfTokens.append("STRING FOUND: " + string)
+                string = ""
+                foundBracket = 0
+
+        elif foundBracket == 1:
+            # print("HELLO! CONSTRUCTING STRING")
+            string += token
             token = ""
 
-        print(token) 
-        # print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
+        elif token == "]":
+            if foundBracket == 1:
+                # print("FOUND A ] - lexer()") # for debugging purposes only. signifies that a [ is found
+                foundBracket = 0
+                string = ""
+            elif foundBracket == 0:
+                foundBracket = 1        
+
+
+
+        # print(token) 
+    print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
 
     return ''
 
