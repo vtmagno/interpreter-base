@@ -1,0 +1,6 @@
+PRINT "Hello"
+$variable1 = 5+3
+PRINT $variable1
+input "What's your name? " $name
+print "hello"
+print $name
