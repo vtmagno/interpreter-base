@@ -15,24 +15,65 @@ variableDictionary = {} # this dictionary will contain variables and their value
 def open_file(fileData):
     fileData = open(ipolFile, "r").read()
     fileData += "<EOF>"
+
+    # print(fileData) # for debugging purposes only. this will print out the contents of the file
+
     return fileData
 
     # fileData variable contains the contents of the ipolFile which was given
     # by the user. It is set to READ ONLY. <EOF> is added to the end of the file
     # to signify that there are no more lines to interpret.
 
+# ******************************************************** lexer() METHOD ********************************************************
+# This method analyzes the tokens and syntax of the file. It is paired with the parser method. 
+
+def lexer(fileContents):
+
+    # lexer method variable definitions
+    fileContents = list(fileContents) # turn the fileContents strings into a list
+    token = "" # the result of parsed characters
+    string = "" # string variable is the one that takes characters and strings inside brackets and treats them as a whole string
+
+    for char in fileContents:
+
+        token += char
+
+        if token == "CREATE":
+            print("FOUND CREATE!") # for debugging purposes only. signifies that the word CREATE
+            token = ""
+
+        elif token == " ":
+            token = ""
+
+        print(token) 
+        # print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
+
+    return ''
+
+# ******************************************************** parser() METHOD ********************************************************
+# This method analyzes the tokens and syntax of the file. It is paired with the lexer method. 
+
+def parser(toks):
+
+    i = 0
+    while(i < len(toks)):
+
+        # the i+=(NUM) line means how many tokens the parses will get
+
+        # this looks for the CREATE statement. 
+        if toks[i] == "CREATE":
+            i+=1   
 
 # ******************************************************** run_file() METHOD ********************************************************
-# This method 
 
 def run_file():
 
     fileData = open_file(ipolFile)
-    toks = lexer_method(fileData)
-    parser_method(toks)
+    toks = lexer(fileData)
+    parser(toks)
 
 # fileData = contains the contents of the ipolFile which was given by the user.
-# toks =  contains the contents of the fileData that was passed on as a parameter to the lexer_method
+# toks =  contains the contents of the fileData that was passed on as a parameter to the lexer
 # the parser method then takes toks as the parameter for the parser method
 
 # ******************************************************** PROGRAM PROPER ********************************************************
