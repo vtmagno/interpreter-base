@@ -54,7 +54,7 @@ def lexer(fileContents):
         # this looks for [], which signifies that the following will be a string
         # foundBracket = 0, every letter we find is part of a keyword or variable
         # foundBracket = 1, every letter we find is part of a string
-        elif token == "\"":
+        elif token == "[":
             if foundBracket == 0:
                 foundBracket = 1
             elif foundBracket == 1:        
@@ -64,16 +64,8 @@ def lexer(fileContents):
 
         elif foundBracket == 1:
             string += token
-            # print(string)
+            # print(string) # for debugging purposes only. prints out the created string
             token = ""
-
-        elif token == "]":
-            if foundBracket == 1:
-                # print("FOUND A ] - lexer()") # for debugging purposes only. signifies that a [ is found
-                foundBracket = 0
-                string = ""
-            elif foundBracket == 0:
-                foundBracket = 1     
 
     # print(token) 
     print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
