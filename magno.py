@@ -56,16 +56,15 @@ def lexer(fileContents):
         # foundBracket = 1, every letter we find is part of a string
         elif token == "[":
             if foundBracket == 0:
-                # print("FOUND A [ - lexer()") # for debugging purposes only. signifies that a [ is found
                 foundBracket = 1
             elif foundBracket == 1:
-                listOfTokens.append("STRING FOUND: " + string)
+                listOfTokens.append("STRING: " + string)
                 string = ""
                 foundBracket = 0
 
         elif foundBracket == 1:
-            # print("HELLO! CONSTRUCTING STRING")
-            string += token
+            string += char
+            print(string)
             token = ""
 
         elif token == "]":
