@@ -10,7 +10,7 @@ listOfNumStack = [] # this list is for determining if the parsed tokens are expr
 variableDictionary = {} # this dictionary will contain variables and their values
 
 # ******************************************************** open_file() METHOD ********************************************************
-# This method will open the file to be interpreted.
+# This method opens and readies the file for interpretation.
 
 def open_file(fileData):
     fileData = open(ipolFile, "r").read()
@@ -20,6 +20,20 @@ def open_file(fileData):
     # fileData variable contains the contents of the ipolFile which was given
     # by the user. It is set to READ ONLY. <EOF> is added to the end of the file
     # to signify that there are no more lines to interpret.
+
+
+# ******************************************************** run_file() METHOD ********************************************************
+# This method 
+
+def run_file():
+
+    fileData = open_file(ipolFile)
+    toks = lexer_method(fileData)
+    parser_method(toks)
+
+# fileData = contains the contents of the ipolFile which was given by the user.
+# toks =  contains the contents of the fileData that was passed on as a parameter to the lexer_method
+# the parser method then takes toks as the parameter for the parser method
 
 # ******************************************************** PROGRAM PROPER ********************************************************
 # This is the program proper. Its only objective is to ask the user for the name and extension of
