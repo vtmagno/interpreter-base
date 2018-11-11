@@ -42,7 +42,7 @@ def lexer(fileContents):
         if token == " ":
             if foundBracket == 0:
                 token = ""
-            else:
+            elif foundBracket == 1:
                 token = " "
 
         # condition satisfied if token parsed evaluates to GIVEYOU!
@@ -54,17 +54,17 @@ def lexer(fileContents):
         # this looks for [], which signifies that the following will be a string
         # foundBracket = 0, every letter we find is part of a keyword or variable
         # foundBracket = 1, every letter we find is part of a string
-        elif token == "[":
+        elif token == "\"":
             if foundBracket == 0:
                 foundBracket = 1
-            elif foundBracket == 1:
+            elif foundBracket == 1:        
                 listOfTokens.append("STRING: " + string)
                 string = ""
                 foundBracket = 0
 
         elif foundBracket == 1:
-            string += char
-            print(string)
+            string += token
+            # print(string)
             token = ""
 
         elif token == "]":
@@ -73,11 +73,9 @@ def lexer(fileContents):
                 foundBracket = 0
                 string = ""
             elif foundBracket == 0:
-                foundBracket = 1        
+                foundBracket = 1     
 
-
-
-        # print(token) 
+    # print(token) 
     print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
 
     return ''
