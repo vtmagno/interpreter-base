@@ -45,6 +45,9 @@ def lexer(fileContents):
             elif foundBracket == 1:
                 token = " "
 
+        elif token == "\n":
+            token = ""
+
         # condition satisfied if token parsed evaluates to GIVEYOU!
         elif token == "GIVEYOU!":
             listOfTokens.append("GIVEYOU!")
@@ -60,20 +63,18 @@ def lexer(fileContents):
                 
         elif token == "]":
             if foundBracket == 1:
+                listOfTokens.append("STRING:" + string[1:]) 
+                string = ""
                 foundBracket = 0     
         
         elif foundBracket == 1:
             string += token     
             token = ""    
-            
-    # append string to listOfTokens
-    listOfTokens.append("STRING:" + string[1:]) 
-    string = ""
 
     # print(token) # for debugging purposes only. prints every parsed character
-    # print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
-    # return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
-    return listOfTokens
+    print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
+    return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
+    # return listOfTokens
 
 # ******************************************************** parser() METHOD ********************************************************
 # This method analyzes the tokens and syntax of the file. It is paired with the lexer method. 
@@ -86,7 +87,8 @@ def parser(toks):
         # the i+=(NUM) line means how many tokens the parses will get
 
         if toks[i] + " " + toks[i+1][0:6] == "GIVEYOU! STRING":
-            print(toks[i+1][7:])
+            print("FOUND STRING")
+            # print(toks[i+1][7:])
             i+=2
 
 # ******************************************************** run_file() METHOD ********************************************************
