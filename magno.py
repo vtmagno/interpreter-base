@@ -57,16 +57,17 @@ def lexer(fileContents):
         elif token == "[":
             if foundBracket == 0:
                 foundBracket = 1
-            elif foundBracket == 1:        
-                listOfTokens.append("STRING: " + string)
-                string = ""
-                foundBracket = 0
-
+                
+        elif token == "]":
+            if foundBracket == 1:
+                foundBracket = 0     
+        
         elif foundBracket == 1:
-            string += token
-            # print(string) # for debugging purposes only. prints out the created string
-            token = ""
-
+            string += token     
+            token = ""    
+            
+    listOfTokens.append("STRING:" + string[1:]) 
+    string = ""
     # print(token) 
     print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
 
