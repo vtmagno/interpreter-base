@@ -46,12 +46,12 @@ def lexer(fileContents):
         # ignore spaces
         if token == " ":
 
-
             if foundBracket == 0:
+                stringVarStarted = 1
                 token = ""
 
             # gets the variable name after the DSTR keyword
-            if stringVarStarted == 1 and var != "":
+            if stringVarStarted == 1:
 
                 if var != "":
                     listOfTokens.append("VAR:" + var)
@@ -65,6 +65,9 @@ def lexer(fileContents):
             # print("FOUND NEW LINE") # for debugging purposes only. signifies that a new line was found.
             token = ""
 
+            # this was added so that variables that aren't after the keywords DSTR and DINT are taken as variables
+            stringVarStarted = 0
+
         # condition satisfied if token parsed evaluates to GIVEYOU!
         elif token == "CREATE":
             listOfTokens.append("CREATE")
@@ -75,26 +78,37 @@ def lexer(fileContents):
         elif token == "GIVEYOU! ":
             listOfTokens.append("GIVEYOU!")
             # print("GIVEYOU!") # for debugging purposes only. signifies that the word GIVEYOU!
+            stringVarStarted = 1
             token = ""
 
         # condition satisfied if token parsed evaluates to GIVEYOU!!
         elif token == "GIVEYOU!! ":
             listOfTokens.append("GIVEYOU!!")
             # print("GIVEYOU!!") # for debugging purposes only. signifies that the word GIVEYOU!!
+            stringVarStarted = 1
             token = ""
 
         # condition satisfied if token parsed evaluates to DSTR
         elif token == "DSTR":
             stringVarStarted = 1
-            # print("DSTR found")
             listOfTokens.append("DSTR")
+            token = ""
+
+        elif token == "WITH ":
+            # print("WITH found") # for debugging purposes only. signifies that the word WITH
+            listOfTokens.append("WITH")
+            token = ""
+
+        elif token == "DINT ":
+            # print("DINT found") # for debugging purposes only. signifies that the word DINT
+            listOfTokens.append("DINT")
             token = ""
 
         # condition satisfied when stringVarStarted == 1. constructs the variable name.
         elif stringVarStarted == 1:
             var += token
             token = ""
-            
+
         # this looks for a token and determines if it is a number or not
         elif token == "0" or token == "1" or token == "2" or token == "3" or token == "4" or token == "5" or token == "6" or token == "7" or token == "8" or token == "9":
             # print("NUMBER") # for debugging purposes only. signifies that a number was found
@@ -123,10 +137,10 @@ def lexer(fileContents):
             string += token     
             token = ""    
 
-    print(token) # for debugging purposes only. prints every parsed character
-    print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
-    return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
-    # return listOfTokens
+    #print(token) # for debugging purposes only. prints every parsed character
+    #print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
+    #return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
+    return listOfTokens
 
 # ******************************************************** assign_variable() METHOD ********************************************************
 # This method assigns a value to a variable name in the variableDictionary.
@@ -135,8 +149,8 @@ def assign_variable(varName, varValue):
 
     variableDictionary[varName[4:]] = varValue
 
-    # print("VARNAME: varName") # for debugging purposes only. this prints the variable name
-    # print("VARVALUE: varValue") # for debugging purposes only. this prints the variable value
+    print("VARNAME: varName") # for debugging purposes only. this prints the variable name
+    print("VARVALUE: varValue") # for debugging purposes only. this prints the variable value
 
 # ******************************************************** get_variable() METHOD ********************************************************
 # This method retrieves the variables and their values from the variableDictionary
@@ -145,7 +159,7 @@ def get_variable(varName):
 
     varName = varName[4:]
 
-    # print("VARNAME: varName") # for debugging purposes only. this prints the variable name
+    print("VARNAME: varName") # for debugging purposes only. this prints the variable name
 
     if varName in variableDictionary:
         return variableDictionary[varName]
@@ -158,26 +172,57 @@ def get_variable(varName):
 def parser(toks):
 
     i = 0
+
     while(i < len(toks)):
 
         # the i+=(NUM) line means how many tokens the parses will get
 
-        if toks[i] + " " + toks[i+1][0:6] == "GIVEYOU! STRING":
-            # print("FOUND STRING")
-            print(toks[i+1][7:], end=" ")
+        # print("entered the parser") # for debugging purposes only
+
+        if toks[i] == "CREATE":
+            i+=1
+
+        # for output
+        if toks[i] + " " + toks[i+1][0:6] == "GIVEYOU! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU! VAR":
+             
+            print("Entered GIVEYOU! if")
+
+            if toks[i+1][0:6] == "STRING":
+                # print("FOUND STRING")
+                print(toks[i+1][7:], end=" ")
+
+              
+            elif toks[i+1][0:3] == "VAR":
+                #print("FOUND VAR")  
+                print(get_variable(toks[i+1]))
+
             i+=2
 
-        elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU!! STRING":
-            # print("FOUND STRING")
-            print(toks[i+1][7:])
+        # for output
+        elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU!! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU!! VAR":
+            
+            print("Entered GIVEYOU!! if")
+
+            if toks[i+1][0:6] == "STRING":
+                # print("FOUND STRING")
+                print(toks[i+1][7:])
+
+            elif toks[i+1][0:3] == "VAR":
+                # print("FOUND VAR")  
+                print(get_variable(toks[i+1]))
+
             i+=2
 
-        elif toks[i] + " " + toks[i+1][4:] + " " + toks[i+2] + toks[i+3][0:6] == "DSTR VAR WITH STRING": 
+        # for assigning variables
+        elif toks[i] + " " + toks[i+1][3:] + " " + toks[i+2] + toks[i+3][0:6] == "DSTR VAR WITH STRING": 
             # print(toks[i+2]) # for debugging purposes only!
+            print("REACHED")
             if toks[i+3][0:6] == "STRING":
-                assign_variable(toks[i+1], toks[i+3][8:-1])
+                assign_variable(toks[i+1], toks[i+3][7:])
 
             i+=4
+
+        print("did not enter")
 
 # ******************************************************** run_file() METHOD ********************************************************
 
