@@ -14,8 +14,7 @@ variableDictionary = {} # this dictionary will contain variables and their value
 
 def open_file(fileData):
     fileData = open(ipolFile, "r").read()
-    fileData += "<EOF>"
-
+    
     # print(fileData) # for debugging purposes only. this will print out the contents of the file
 
     return fileData
@@ -31,28 +30,80 @@ def lexer(fileContents):
 
     # lexer method variable definitions
     fileContents = list(fileContents) # turn the fileContents strings into a list
+
     token = "" # the result of parsed characters
     string = "" # string variable is the one that takes characters and strings inside brackets and treats them as a whole string
-    foundBracket = 0 # searches for quotation marks
+    expr = "" # takes numbers and operators as a whole expresion
+    var = "" # will hold the value of the variable being declared
+
+    foundBracket = 0 # indicates whether the current token is a [ or a ]
+    stringVarStarted = 0 # indicates whether the variable assignment for strings have started
 
     for char in fileContents:
 
         token += char
 
+        # ignore spaces
         if token == " ":
+
+
             if foundBracket == 0:
                 token = ""
-            elif foundBracket == 1:
+
+            # gets the variable name after the DSTR keyword
+            if stringVarStarted == 1 and var != "":
+
+                if var != "":
+                    listOfTokens.append("VAR:" + var)
+                    var = ""
+                    stringVarStarted = 0
+
+            else:
                 token = " "
 
-        elif token == "\n":
+        elif token == "\n" or token == "<EOF>" or token == "\t":
+            # print("FOUND NEW LINE") # for debugging purposes only. signifies that a new line was found.
             token = ""
 
         # condition satisfied if token parsed evaluates to GIVEYOU!
-        elif token == "GIVEYOU!":
-            listOfTokens.append("GIVEYOU!")
-            # print("GIVEYOU!") # for debugging purposes only. signifies that the word CREATE
+        elif token == "CREATE":
+            listOfTokens.append("CREATE")
+            # print("CREATE") # for debugging purposes only. signifies that the word CREATE
             token = ""
+            
+        # condition satisfied if token parsed evaluates to GIVEYOU!
+        elif token == "GIVEYOU! ":
+            listOfTokens.append("GIVEYOU!")
+            # print("GIVEYOU!") # for debugging purposes only. signifies that the word GIVEYOU!
+            token = ""
+
+        # condition satisfied if token parsed evaluates to GIVEYOU!!
+        elif token == "GIVEYOU!! ":
+            listOfTokens.append("GIVEYOU!!")
+            # print("GIVEYOU!!") # for debugging purposes only. signifies that the word GIVEYOU!!
+            token = ""
+
+        # condition satisfied if token parsed evaluates to DSTR
+        elif token == "DSTR":
+            stringVarStarted = 1
+            # print("DSTR found")
+            listOfTokens.append("DSTR")
+            token = ""
+
+        # condition satisfied when stringVarStarted == 1. constructs the variable name.
+        elif stringVarStarted == 1:
+            var += token
+            token = ""
+            
+        # this looks for a token and determines if it is a number or not
+        elif token == "0" or token == "1" or token == "2" or token == "3" or token == "4" or token == "5" or token == "6" or token == "7" or token == "8" or token == "9":
+            # print("NUMBER") # for debugging purposes only. signifies that a number was found
+            expr += token 
+            # print(expr) # for debugging purposes only. prints out the created expression
+            token = ""
+
+        # condition satisfied if stringVarStarted == 1
+        # elif stringVarStarted == 1:
 
         # this looks for [], which signifies that the following will be a string
         # foundBracket = 0, every letter we find is part of a keyword or variable
@@ -65,16 +116,41 @@ def lexer(fileContents):
             if foundBracket == 1:
                 listOfTokens.append("STRING:" + string[1:]) 
                 string = ""
-                foundBracket = 0     
+                token = ""
+            foundBracket = 0     
         
         elif foundBracket == 1:
             string += token     
             token = ""    
 
-    # print(token) # for debugging purposes only. prints every parsed character
-    # print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
-    # return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
-    return listOfTokens
+    print(token) # for debugging purposes only. prints every parsed character
+    print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
+    return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
+    # return listOfTokens
+
+# ******************************************************** assign_variable() METHOD ********************************************************
+# This method assigns a value to a variable name in the variableDictionary.
+
+def assign_variable(varName, varValue):
+
+    variableDictionary[varName[4:]] = varValue
+
+    # print("VARNAME: varName") # for debugging purposes only. this prints the variable name
+    # print("VARVALUE: varValue") # for debugging purposes only. this prints the variable value
+
+# ******************************************************** get_variable() METHOD ********************************************************
+# This method retrieves the variables and their values from the variableDictionary
+
+def get_variable(varName):
+
+    varName = varName[4:]
+
+    # print("VARNAME: varName") # for debugging purposes only. this prints the variable name
+
+    if varName in variableDictionary:
+        return variableDictionary[varName]
+    else:
+        return "VARIABLE ERROR: Undefined variable."    
 
 # ******************************************************** parser() METHOD ********************************************************
 # This method analyzes the tokens and syntax of the file. It is paired with the lexer method. 
@@ -88,8 +164,20 @@ def parser(toks):
 
         if toks[i] + " " + toks[i+1][0:6] == "GIVEYOU! STRING":
             # print("FOUND STRING")
+            print(toks[i+1][7:], end=" ")
+            i+=2
+
+        elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU!! STRING":
+            # print("FOUND STRING")
             print(toks[i+1][7:])
             i+=2
+
+        elif toks[i] + " " + toks[i+1][4:] + " " + toks[i+2] + toks[i+3][0:6] == "DSTR VAR WITH STRING": 
+            # print(toks[i+2]) # for debugging purposes only!
+            if toks[i+3][0:6] == "STRING":
+                assign_variable(toks[i+1], toks[i+3][8:-1])
+
+            i+=4
 
 # ******************************************************** run_file() METHOD ********************************************************
 
