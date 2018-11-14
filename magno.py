@@ -67,6 +67,10 @@ def lexer(fileContents):
 
             # this was added so that variables that aren't after the keywords DSTR and DINT are taken as variables
             stringVarStarted = 0
+            if var != "":
+                listOfTokens.append("VAR:" + var)
+                var = ""
+                stringVarStarted = 0
 
         # condition satisfied if token parsed evaluates to GIVEYOU!
         elif token == "CREATE":
@@ -138,9 +142,9 @@ def lexer(fileContents):
             token = ""    
 
     #print(token) # for debugging purposes only. prints every parsed character
-    #print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
-    #return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
-    return listOfTokens
+    print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
+    return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
+    #return listOfTokens
 
 # ******************************************************** assign_variable() METHOD ********************************************************
 # This method assigns a value to a variable name in the variableDictionary.
@@ -149,17 +153,17 @@ def assign_variable(varName, varValue):
 
     variableDictionary[varName[4:]] = varValue
 
-    print("VARNAME: varName") # for debugging purposes only. this prints the variable name
-    print("VARVALUE: varValue") # for debugging purposes only. this prints the variable value
+    #print("VARNAME: varName") # for debugging purposes only. this prints the variable name
+    #print("VARVALUE: varValue") # for debugging purposes only. this prints the variable value
 
 # ******************************************************** get_variable() METHOD ********************************************************
 # This method retrieves the variables and their values from the variableDictionary
 
 def get_variable(varName):
 
-    varName = varName[4:]
+    varName = varName[3:]
 
-    print("VARNAME: varName") # for debugging purposes only. this prints the variable name
+    #print("VARNAME: varName") # for debugging purposes only. this prints the variable name
 
     if varName in variableDictionary:
         return variableDictionary[varName]
@@ -221,8 +225,6 @@ def parser(toks):
                 assign_variable(toks[i+1], toks[i+3][7:])
 
             i+=4
-
-        print("did not enter")
 
 # ******************************************************** run_file() METHOD ********************************************************
 
