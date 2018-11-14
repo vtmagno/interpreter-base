@@ -40,6 +40,8 @@ def lexer(fileContents):
     stringVarStarted = 0 # indicates whether the variable assignment for strings have started
     exprStarted = 0 # indicates that an expression has started
 
+    isNum = 0 # checks if token is a number
+
     for char in fileContents:
 
         token += char
@@ -54,11 +56,16 @@ def lexer(fileContents):
             # gets the variable name after the DSTR and DINT keyword
             if stringVarStarted == 1:
 
-                if var != "":
+                if var != "" and exprStarted == 0:
                     listOfTokens.append("VAR:" + var)
                     var = ""
                     stringVarStarted = 0
-                    
+
+                elif expr != "" and exprStarted == 1:
+                    listOfTokens.append("EXPR:" + expr)
+                    expr = ""        
+                    exprStarted = 0
+
             else:
                 token = " "
 
@@ -114,7 +121,7 @@ def lexer(fileContents):
         # condition satisfied if token parsed evaluates to PLUS
         elif token == "PLUS":
             # print("PLUS found") # for debugging purposes only. signifies that the word PLUS
-            listOfTokens.append("PLUS")
+            #listOfTokens.append("PLUS")
             exprStarted = 1
             expr += token
             token = ""    
@@ -122,7 +129,7 @@ def lexer(fileContents):
         # condition satisfied if token parsed evaluates to MINUS
         elif token == "MINUS":
             # print("MINUS found") # for debugging purposes only. signifies that the word MINUS
-            listOfTokens.append("MINUS")
+            #listOfTokens.append("MINUS")
             exprStarted = 1
             expr += token
             token = ""  
@@ -130,7 +137,7 @@ def lexer(fileContents):
         # condition satisfied if token parsed evaluates to TIMES
         elif token == "TIMES":
             # print("MINUS found") # for debugging purposes only. signifies that the word MINUS
-            listOfTokens.append("MINUS")
+            #listOfTokens.append("TIMES")
             exprStarted = 1
             expr += token
             token = ""  
@@ -138,7 +145,7 @@ def lexer(fileContents):
         # condition satisfied if token parsed evaluates to DIVBY
         elif token == "DIVBY":
             # print("DIVBY found") # for debugging purposes only. signifies that the word DIVBY
-            listOfTokens.append("DIVBY")
+            #listOfTokens.append("DIVBY")
             exprStarted = 1
             expr += token
             token = ""  
@@ -146,7 +153,7 @@ def lexer(fileContents):
         # condition satisfied if token parsed evaluates to MODU
         elif token == "MODU":
             # print("MODU found") # for debugging purposes only. signifies that the word MODU
-            listOfTokens.append("MODU")
+            #listOfTokens.append("MODU")
             exprStarted = 1
             expr += token
             token = ""  
@@ -159,6 +166,7 @@ def lexer(fileContents):
         # this looks for a token and determines if it is a number or not
         elif token == "0" or token == "1" or token == "2" or token == "3" or token == "4" or token == "5" or token == "6" or token == "7" or token == "8" or token == "9":
             # print("NUMBER") # for debugging purposes only. signifies that a number was found
+            
             expr += token 
             # print(expr) # for debugging purposes only. prints out the created expression
             token = ""
@@ -184,10 +192,10 @@ def lexer(fileContents):
             string += token     
             token = ""    
 
-    print(token) # for debugging purposes only. prints every parsed character
-    print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
-    return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
-    #return listOfTokens
+    #print(token) # for debugging purposes only. prints every parsed character
+    #print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
+    #return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
+    return listOfTokens
 
 # ******************************************************** assign_variable() METHOD ********************************************************
 # This method assigns a value to a variable name in the variableDictionary.
@@ -196,8 +204,8 @@ def assign_variable(varName, varValue):
 
     variableDictionary[varName[4:]] = varValue
 
-    print("VARNAME: varName") # for debugging purposes only. this prints the variable name
-    print("VARVALUE: varValue") # for debugging purposes only. this prints the variable value
+    #print("VARNAME: ", varName) # for debugging purposes only. this prints the variable name
+    #print("VARVALUE: ", varValue) # for debugging purposes only. this prints the variable value
 
 # ******************************************************** get_variable() METHOD ********************************************************
 # This method retrieves the variables and their values from the variableDictionary
@@ -206,7 +214,7 @@ def get_variable(varName):
 
     varName = varName[4:]
 
-    print("VARNAME: varName") # for debugging purposes only. this prints the variable name
+    #print("VARNAME: ", varName) # for debugging purposes only. this prints the variable name
 
     if varName in variableDictionary:
         return variableDictionary[varName]
@@ -247,8 +255,6 @@ def parser(toks):
 
         # for output
         elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU!! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU!! VAR":
-            
-            print("Entered GIVEYOU!! if")
 
             if toks[i+1][0:6] == "STRING":
                 # print("FOUND STRING")
@@ -261,9 +267,9 @@ def parser(toks):
             i+=2
 
         # for assigning variables
-        elif toks[i] + " " + toks[i+1][3:] + " " + toks[i+2] + toks[i+3][0:6] == "DSTR VAR WITH STRING": 
+        elif toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:6] == "DSTR VAR WITH STRING": 
             # print(toks[i+2]) # for debugging purposes only!
-            print("REACHED")
+            
             if toks[i+3][0:6] == "STRING":
                 assign_variable(toks[i+1], toks[i+3][7:])
 
