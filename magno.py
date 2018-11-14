@@ -38,6 +38,7 @@ def lexer(fileContents):
 
     foundBracket = 0 # indicates whether the current token is a [ or a ]
     stringVarStarted = 0 # indicates whether the variable assignment for strings have started
+    exprStarted = 0 # indicates that an expression has started
 
     for char in fileContents:
 
@@ -50,14 +51,14 @@ def lexer(fileContents):
                 stringVarStarted = 1
                 token = ""
 
-            # gets the variable name after the DSTR keyword
+            # gets the variable name after the DSTR and DINT keyword
             if stringVarStarted == 1:
 
                 if var != "":
                     listOfTokens.append("VAR:" + var)
                     var = ""
                     stringVarStarted = 0
-
+                    
             else:
                 token = " "
 
@@ -66,7 +67,6 @@ def lexer(fileContents):
             token = ""
 
             # this was added so that variables that aren't after the keywords DSTR and DINT are taken as variables
-            stringVarStarted = 0
             if var != "":
                 listOfTokens.append("VAR:" + var)
                 var = ""
@@ -98,15 +98,58 @@ def lexer(fileContents):
             listOfTokens.append("DSTR")
             token = ""
 
+        # condition satisfied if token parsed evaluates to WITH
         elif token == "WITH ":
             # print("WITH found") # for debugging purposes only. signifies that the word WITH
             listOfTokens.append("WITH")
             token = ""
 
-        elif token == "DINT ":
+        # condition satisfied if token parsed evaluates to DSTR
+        elif token == "DINT":
             # print("DINT found") # for debugging purposes only. signifies that the word DINT
+            stringVarStarted = 1
             listOfTokens.append("DINT")
             token = ""
+
+        # condition satisfied if token parsed evaluates to PLUS
+        elif token == "PLUS":
+            # print("PLUS found") # for debugging purposes only. signifies that the word PLUS
+            listOfTokens.append("PLUS")
+            exprStarted = 1
+            expr += token
+            token = ""    
+
+        # condition satisfied if token parsed evaluates to MINUS
+        elif token == "MINUS":
+            # print("MINUS found") # for debugging purposes only. signifies that the word MINUS
+            listOfTokens.append("MINUS")
+            exprStarted = 1
+            expr += token
+            token = ""  
+
+        # condition satisfied if token parsed evaluates to TIMES
+        elif token == "TIMES":
+            # print("MINUS found") # for debugging purposes only. signifies that the word MINUS
+            listOfTokens.append("MINUS")
+            exprStarted = 1
+            expr += token
+            token = ""  
+
+        # condition satisfied if token parsed evaluates to DIVBY
+        elif token == "DIVBY":
+            # print("DIVBY found") # for debugging purposes only. signifies that the word DIVBY
+            listOfTokens.append("DIVBY")
+            exprStarted = 1
+            expr += token
+            token = ""  
+
+        # condition satisfied if token parsed evaluates to MODU
+        elif token == "MODU":
+            # print("MODU found") # for debugging purposes only. signifies that the word MODU
+            listOfTokens.append("MODU")
+            exprStarted = 1
+            expr += token
+            token = ""  
 
         # condition satisfied when stringVarStarted == 1. constructs the variable name.
         elif stringVarStarted == 1:
@@ -141,7 +184,7 @@ def lexer(fileContents):
             string += token     
             token = ""    
 
-    #print(token) # for debugging purposes only. prints every parsed character
+    print(token) # for debugging purposes only. prints every parsed character
     print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
     return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
     #return listOfTokens
@@ -153,17 +196,17 @@ def assign_variable(varName, varValue):
 
     variableDictionary[varName[4:]] = varValue
 
-    #print("VARNAME: varName") # for debugging purposes only. this prints the variable name
-    #print("VARVALUE: varValue") # for debugging purposes only. this prints the variable value
+    print("VARNAME: varName") # for debugging purposes only. this prints the variable name
+    print("VARVALUE: varValue") # for debugging purposes only. this prints the variable value
 
 # ******************************************************** get_variable() METHOD ********************************************************
 # This method retrieves the variables and their values from the variableDictionary
 
 def get_variable(varName):
 
-    varName = varName[3:]
+    varName = varName[4:]
 
-    #print("VARNAME: varName") # for debugging purposes only. this prints the variable name
+    print("VARNAME: varName") # for debugging purposes only. this prints the variable name
 
     if varName in variableDictionary:
         return variableDictionary[varName]
