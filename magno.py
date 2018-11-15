@@ -39,8 +39,8 @@ def lexer(fileContents):
     foundBracket = 0 # indicates whether the current token is a [ or a ]
     stringVarStarted = 0 # indicates whether the variable assignment for strings have started
     exprStarted = 0 # indicates that an expression has started
-
-    isNum = 0 # checks if token is a number
+    isNum = 0
+    valueStarted = 0
 
     for char in fileContents:
 
@@ -56,15 +56,33 @@ def lexer(fileContents):
             # gets the variable name after the DSTR and DINT keyword
             if stringVarStarted == 1:
 
-                if var != "" and exprStarted == 0:
+                varDigit = 0
+
+                if var.isdigit():
+                    varDigit = 1
+
+                if var != "" and exprStarted == 0 and varDigit == 0:
+
                     listOfTokens.append("VAR:" + var)
                     var = ""
                     stringVarStarted = 0
 
+                elif var != "" and exprStarted == 0 and varDigit == 1:
+
+                    listOfTokens.append("NUM:" + var)
+                    var = ""
+                    stringVarStarted = 0                    
+
                 elif expr != "" and exprStarted == 1:
-                    listOfTokens.append("EXPR:" + expr)
-                    expr = ""        
-                    exprStarted = 0
+
+                    if expr.isdigit():
+                        listOfTokens.append("NUM:" + expr)
+                        expr = ""        
+                        exprStarted = 0
+                    else:
+                        listOfTokens.append("EXPR:" + expr)
+                        expr = ""        
+                        exprStarted = 0                       
 
             else:
                 token = " "
@@ -74,7 +92,7 @@ def lexer(fileContents):
             token = ""
 
             # this was added so that variables that aren't after the keywords DSTR and DINT are taken as variables
-            if var != "":
+            if var != "" and exprStarted == 0:
                 listOfTokens.append("VAR:" + var)
                 var = ""
                 stringVarStarted = 0
@@ -164,10 +182,10 @@ def lexer(fileContents):
             token = ""
 
         # this looks for a token and determines if it is a number or not
-        elif token == "0" or token == "1" or token == "2" or token == "3" or token == "4" or token == "5" or token == "6" or token == "7" or token == "8" or token == "9":
-            # print("NUMBER") # for debugging purposes only. signifies that a number was found
-            
-            expr += token 
+        if token == "0" or token == "1" or token == "2" or token == "3" or token == "4" or token == "5" or token == "6" or token == "7" or token == "8" or token == "9":
+            #print("NUMBER") # for debugging purposes only. signifies that a number was found
+            isNum = 1
+            listOfTokens.append("NUM:" + token)
             # print(expr) # for debugging purposes only. prints out the created expression
             token = ""
 
@@ -193,9 +211,9 @@ def lexer(fileContents):
             token = ""    
 
     #print(token) # for debugging purposes only. prints every parsed character
-    #print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
-    #return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
-    return listOfTokens
+    print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
+    return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
+    #return listOfTokens
 
 # ******************************************************** assign_variable() METHOD ********************************************************
 # This method assigns a value to a variable name in the variableDictionary.
@@ -221,12 +239,19 @@ def get_variable(varName):
     else:
         return "VARIABLE ERROR: Undefined variable."    
 
+# ******************************************************** evaluate_expression() METHOD ********************************************************
+# This method evaluates the expression given by the user
+
+# def evaluate_expression(expr):
+
+
 # ******************************************************** parser() METHOD ********************************************************
 # This method analyzes the tokens and syntax of the file. It is paired with the lexer method. 
 
 def parser(toks):
 
     i = 0
+    lineNum = 0
 
     while(i < len(toks)):
 
@@ -234,7 +259,10 @@ def parser(toks):
 
         # print("entered the parser") # for debugging purposes only
 
+        lineNum += 1
+
         if toks[i] == "CREATE":
+
             i+=1
 
         # for output
@@ -275,6 +303,8 @@ def parser(toks):
 
             i+=4
 
+        # print(toks[i][0:5] + " " + toks[i+1][0:3] + " " + toks[i+2][0:5] + " " + toks[i+3][0:3] + " " + toks[i+4][0:3])
+
 # ******************************************************** run_file() METHOD ********************************************************
 
 def run_file():
@@ -287,16 +317,28 @@ def run_file():
 # toks =  contains the contents of the fileData that was passed on as a parameter to the lexer
 # the parser method then takes toks as the parameter for the parser method
 
+
+
 # ******************************************************** PROGRAM PROPER ********************************************************
 # This is the program proper. Its only objective is to ask the user for the name and extension of
 # the file to be interpreted. It will only accept files ending in ".ipol".
 
 while True: 
 
-    ipolFile = input("Please enter the file to be interpreted: ")
+    print("")
+    ipolFile = input("Please enter interpol file to interpret (ex. sample.ipol): ")
 
     if ipolFile.endswith(".ipol"):
+        print("")
+        print("=========================== OUTPUT =========================================")
         run_file()
+        print("")
+        print("========================= LEXEMES AND TOKENS TABLE =========================")
+        print("Line #\t\t\tTokens\t\t\tLexemes ")
+        print("")
+        print("========================= SYMBOL TABLE ======================================")
+        print("Variable Name\t\tType\t\t\tValue ")
+        print("")
         break
     else:
         print("Please enter the file to be interpreted. Must be in .ipol extension.")
