@@ -58,6 +58,7 @@ def lexer(fileContents):
 
                 varDigit = 0
 
+                # this will check if the variable created is a string or a number
                 if var.isdigit():
                     varDigit = 1
 
@@ -79,7 +80,12 @@ def lexer(fileContents):
                         listOfTokens.append("NUM:" + expr)
                         expr = ""        
                         exprStarted = 0
+
                     else:
+                        # this inserts the token "NUM:0" after an EXPR NUM BLANK
+                        if listOfTokens[-1] != listOfTokens[-1][0:3] == "NUM":
+                            listOfTokens.append("NUM:0")
+
                         listOfTokens.append("EXPR:" + expr)
                         expr = ""        
                         exprStarted = 0                       
@@ -176,6 +182,21 @@ def lexer(fileContents):
             expr += token
             token = ""  
 
+        elif token == "STORE":
+            # print("STORE found") # for debugging purposes only. signifies that the word MODU
+            listOfTokens.append("STORE")
+            token = ""
+
+        elif token == "IN":
+            # print("IN found") # for debugging purposes only. signifies that the word MODU
+            listOfTokens.append("IN")
+            token = ""
+
+        elif token == "RUPTURE":
+            # print("RUPTURE found") # for debugging purposes only. signifies that the word MODU
+            listOfTokens.append("RUPTURE")
+            token = ""
+
         # condition satisfied when stringVarStarted == 1. constructs the variable name.
         elif stringVarStarted == 1:
             var += token
@@ -211,9 +232,9 @@ def lexer(fileContents):
             token = ""    
 
     #print(token) # for debugging purposes only. prints every parsed character
-    print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
-    return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
-    #return listOfTokens
+    #print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
+    #return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
+    return listOfTokens
 
 # ******************************************************** assign_variable() METHOD ********************************************************
 # This method assigns a value to a variable name in the variableDictionary.
@@ -277,7 +298,7 @@ def parser(toks):
               
             elif toks[i+1][0:3] == "VAR":
                 #print("FOUND VAR")  
-                print(get_variable(toks[i+1]))
+                print(get_variable(toks[i+1]), end=" ")
 
             i+=2
 
@@ -286,11 +307,11 @@ def parser(toks):
 
             if toks[i+1][0:6] == "STRING":
                 # print("FOUND STRING")
-                print(toks[i+1][7:])
+                print("\n" + toks[i+1][7:])
 
             elif toks[i+1][0:3] == "VAR":
                 # print("FOUND VAR")  
-                print(get_variable(toks[i+1]))
+                print("\n" + get_variable(toks[i+1]))
 
             i+=2
 
