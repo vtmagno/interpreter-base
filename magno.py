@@ -7,6 +7,8 @@ from sys import *
 # ******************************************************** GLOBAL VARIABLES ********************************************************
 listOfTokens = [] # this list contains the parsed characters and represents them as whole strings
 listOfNumStack = [] # this list is for determining if the parsed tokens are expressions
+listOfLexemesAndTokens = [] # this list is for the table of lexemes and tokens
+listOfVariables = [] # this dictionary is for the table of variables, values and types
 variableDictionary = {} # this dictionary will contain variables and their values
 
 # ******************************************************** open_file() METHOD ********************************************************
@@ -260,12 +262,6 @@ def get_variable(varName):
     else:
         return "VARIABLE ERROR: Undefined variable."    
 
-# ******************************************************** evaluate_expression() METHOD ********************************************************
-# This method evaluates the expression given by the user
-
-# def evaluate_expression(expr):
-
-
 # ******************************************************** parser() METHOD ********************************************************
 # This method analyzes the tokens and syntax of the file. It is paired with the lexer method. 
 
@@ -283,11 +279,11 @@ def parser(toks):
         lineNum += 1
 
         if toks[i] == "CREATE":
-
+            listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "PROGRAM_CREATE" + "\t\t\t\t" + "CREATE" + "\n")
             i+=1
 
         # for output
-        if toks[i] + " " + toks[i+1][0:6] == "GIVEYOU! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU! VAR":
+        elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU! VAR":
              
             print("Entered GIVEYOU! if")
 
@@ -295,7 +291,6 @@ def parser(toks):
                 # print("FOUND STRING")
                 print(toks[i+1][7:], end=" ")
 
-              
             elif toks[i+1][0:3] == "VAR":
                 #print("FOUND VAR")  
                 print(get_variable(toks[i+1]), end=" ")
@@ -305,20 +300,39 @@ def parser(toks):
         # for output
         elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU!! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU!! VAR":
 
+            if toks[i] == "GIVEYOU!!":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "OUTPUT_WITH_LINE" + "\t\t\t" + "GIVEYOU!!" + "\n")            
+
             if toks[i+1][0:6] == "STRING":
                 # print("FOUND STRING")
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t" + toks[i+1][7:] + "\n")            
                 print("\n" + toks[i+1][7:])
 
             elif toks[i+1][0:3] == "VAR":
                 # print("FOUND VAR")  
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")            
                 print("\n" + get_variable(toks[i+1]))
 
             i+=2
 
         # for assigning variables
-        elif toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:6] == "DSTR VAR WITH STRING": 
+        elif toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:6] == "DSTR VAR WITH STRING" or toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:3] == "DSTR VAR WITH NUM": 
             # print(toks[i+2]) # for debugging purposes only!
+
+            # this is for the LEXEMES AND TOKENS TABLE
+            if toks[i] == "DSTR":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_STRING" + "\t\t\t" + "DSTR" + "\n")
             
+            if toks[i+1][0:3] == "VAR":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")
+
+            if toks[i+2] == "WITH":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_ASSIGN_WITH_KEY" + "\t\t" + "WITH" + "\n")       
+
+            if toks[i+3][0:6] == "STRING":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t\t\t" + toks[i+3][7:] + "\n")       
+                listOfVariables.append(toks[i+1][4:] + "\t\t" + "STRING" + "\t\t\t" + toks[i+3][7:])
+
             if toks[i+3][0:6] == "STRING":
                 assign_variable(toks[i+1], toks[i+3][7:])
 
@@ -338,7 +352,17 @@ def run_file():
 # toks =  contains the contents of the fileData that was passed on as a parameter to the lexer
 # the parser method then takes toks as the parameter for the parser method
 
+# ******************************************************** lexemes_tokens() METHOD ********************************************************
+# This method displays the lexemes and tokens table
 
+def lexemes_tokens():
+    print(*listOfLexemesAndTokens)
+
+# ******************************************************** variables_table() METHOD ********************************************************
+# This method displays the stored variables
+
+def variables_table():
+    print(*listOfVariables)
 
 # ******************************************************** PROGRAM PROPER ********************************************************
 # This is the program proper. Its only objective is to ask the user for the name and extension of
@@ -355,10 +379,13 @@ while True:
         run_file()
         print("")
         print("========================= LEXEMES AND TOKENS TABLE =========================")
-        print("Line #\t\t\tTokens\t\t\tLexemes ")
+        print("Line #\t\t\tTokens\t\t\t\t\tLexemes ")
+        lexemes_tokens()
         print("")
         print("========================= SYMBOL TABLE ======================================")
         print("Variable Name\t\tType\t\t\tValue ")
+        variables_table()
+
         print("")
         break
     else:
