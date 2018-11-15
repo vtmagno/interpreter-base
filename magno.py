@@ -125,6 +125,11 @@ def lexer(fileContents):
             stringVarStarted = 1
             token = ""
 
+        elif token == "GIVEME? ":
+            # print("GIVEME? found") # for debugging purposes only. signifies that the word GIVEME?
+            listOfTokens.append("GIVEME?")
+            token = ""
+
         # condition satisfied if token parsed evaluates to DSTR
         elif token == "DSTR":
             stringVarStarted = 1
@@ -185,12 +190,12 @@ def lexer(fileContents):
             token = ""  
 
         elif token == "STORE":
-            # print("STORE found") # for debugging purposes only. signifies that the word MODU
+            # print("STORE found") # for debugging purposes only. signifies that the word STORE
             listOfTokens.append("STORE")
             token = ""
 
         elif token == "IN":
-            # print("IN found") # for debugging purposes only. signifies that the word MODU
+            # print("IN found") # for debugging purposes only. signifies that the word IN
             listOfTokens.append("IN")
             token = ""
 
@@ -284,15 +289,18 @@ def parser(toks):
 
         # for output
         elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU! VAR":
-             
-            print("Entered GIVEYOU! if")
+
+            if toks[i] == "GIVEYOU!":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "OUTPUT" + "\t\t\t\t\t" + "GIVEYOU!" + "\n")            
 
             if toks[i+1][0:6] == "STRING":
                 # print("FOUND STRING")
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t" + toks[i+1][7:] + "\n")            
                 print(toks[i+1][7:], end=" ")
 
             elif toks[i+1][0:3] == "VAR":
                 #print("FOUND VAR")  
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")            
                 print(get_variable(toks[i+1]), end=" ")
 
             i+=2
@@ -337,6 +345,19 @@ def parser(toks):
                 assign_variable(toks[i+1], toks[i+3][7:])
 
             i+=4
+
+        elif toks[i] + " " + toks[i+1][0:3] == "DSTR VAR" or toks[i] + " " + toks[i+1][0:3] == "DINT VAR":
+            
+            if toks[i+1] == "DSTR":
+                assign_variable(toks[i+1], "")
+            elif toks[i+1] == "DINT": 
+                assign_variable(toks[i+1], 0)
+
+            i+=2
+
+
+        #elif toks[i] + " " + toks[i+1][0:3] == "GIVEME? VAR":
+        #    get_input()
 
         # print(toks[i][0:5] + " " + toks[i+1][0:3] + " " + toks[i+2][0:5] + " " + toks[i+3][0:3] + " " + toks[i+4][0:3])
 
