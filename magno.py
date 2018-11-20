@@ -296,11 +296,32 @@ def parser(toks):
             listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "PROGRAM_CREATE" + "\t\t\t\t" + "CREATE" + "\n")
 			
 			# this adds the lexeme create to the listOfTokens
-    
 
             i+=1
 
-        if toks[i] == "WITH":
+        elif toks[i] == "RUPTURE":
+		
+            lineNum += 1
+
+			# this adds the CREATE lexeme to the listOfLexemesAndTokens
+            listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "PROGRAM_RUPTURE" + "\t\t\t\t" + "RUPTURE" + "\n")
+			
+			# this adds the lexeme create to the listOfTokens
+
+            i+=1
+
+        elif toks[i] == "<EOF>":
+		
+            lineNum += 1
+
+			# this adds the CREATE lexeme to the listOfLexemesAndTokens
+            listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "EOF" + "\t\t\t\t" + "<EOF>" + "\n")
+			
+			# this adds the lexeme create to the listOfTokens
+
+            i+=1
+
+        elif toks[i] == "WITH":
 		
 			# this adds the CREATE lexeme to the listOfLexemesAndTokens
             listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_ASSIGN_WITH_KEY" + "\t\t" + "WITH" + "\n")       
@@ -326,7 +347,7 @@ def parser(toks):
                 listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t" + toks[i+1][7:] + "\n")   
 
 				# this prints out the string given
-                print(toks[i+1][7:], end=" ")
+                print("\n" + toks[i+1][7:], sep='')
 
 			# this adds the VAR lexeme to the listOfLexemesAndTokens
             elif toks[i+1][0:3] == "VAR":
@@ -335,7 +356,7 @@ def parser(toks):
                 listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")           
 
 				# this prints out the var given
-                print(get_variable(toks[i+1]), end=" ")
+                print("\n" + get_variable(toks[i+1]), sep='')
 				
 			# this adds the lexeme create to the listOfTokens
             i+=2
@@ -367,21 +388,48 @@ def parser(toks):
                 listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")          
 
 				# this prints out the var given
-                print("\n" + get_variable(toks[i+1]))
+                print("\n" + str(get_variable(toks[i+1])))
 
             i+=2
 
+        elif toks[i] + " " + toks[i+1][0:6] + " " + toks[i+2] + " " + toks[i+3][0:3] == "STORE STRING IN VAR" or toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:3] == "STORE NUM IN VAR":
+            
+            lineNum += 1
+
+            if toks[i] == "STORE":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "ASSIGN_KEY" + "\t\t\t\t" + "STORE" + "\n")
+
+            if toks[i+1][0:6] == "STRING":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t\t\t" + toks[i+3][7:] + "\n")       
+                
+            if toks[i+1][0:3] == "NUM":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "NUMBER" + "\t\t\t\t\t" + toks[i+1][0:43] + "\n")         
+
+            if toks[i+2][0:3] == "IN":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "ASSIGN_VAR_KEY" + "\t\t\t\t" + "IN" + "\n") 
+
+            if toks[i+3][0:3] == "VAR":
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")    
+
+            if toks[i+1][0:6] == "STRING":
+                assign_variable(toks[i+2], toks[i+1][7:])
+            if toks[i+1][0:3] == "NUM":
+                assign_variable(toks[i+3], toks[i+1][4:])
+                listOfVariables.append(toks[i+3][4:] + "\t\t\t" + "INTEGER" + "\t\t\t" + toks[i+1][4:] + "\n")
+
+            i+=4
+
         elif toks[i] + " " + toks[i+1][0:3] == "DSTR VAR" or toks[i] + " " + toks[i+1][0:3] == "DINT VAR":
 
-            print("ENTERED")
-            
-            if toks[i+2] == "":
+            if toks[i+2] != "WITH":
 
                 lineNum += 1
 
                 if toks[i+1] == "DSTR":
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_STRING" + "\t\t\t" + "DSTR" + "\n")
                     assign_variable(toks[i+1], "")
                 elif toks[i+1] == "DINT": 
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_STRING" + "\t\t\t" + "DINT" + "\n")
                     assign_variable(toks[i+1], 0)
 
                 i+=2
@@ -413,8 +461,8 @@ def parser(toks):
                 
                 lineNum += 1
 
-                    # this is for the LEXEMES AND TOKENS TABLE
-                if toks[i] == "DSTR":
+                # this is for the LEXEMES AND TOKENS TABLE
+                if toks[i] == "DINT":
                     listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_STRING" + "\t\t\t" + "DINT" + "\n")
                 
                 if toks[i+1][0:3] == "VAR":
@@ -432,16 +480,14 @@ def parser(toks):
 
                 i+=4
 
-            elif toks[i+2]:
-
-                if toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][5:]  + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] + " " + toks[i+6][5:] + " " + toks[i+7][0:3] + " " + toks[i+8][0:3] == "DINT VAR WITH PLUS NUM NUM MINUS NUM NUM":
+            elif toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][5:]  + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] + " " + toks[i+6][5:] + " " + toks[i+7][0:3] + " " + toks[i+8][0:3] == "DINT VAR WITH PLUS NUM NUM MINUS NUM NUM":
 
                     lineNum += 1
 
                     exprString = "(",toks[i+4][4:], "+", toks[i+5][4:], ")+(", toks[i+7][4:], "-", toks[i+8][4:], ")"
                     finalExpr = ''.join(map(str, exprString))
 
-                    assign_variable(toks[i+1][4:], eval_expressions(finalExpr))
+                    assign_variable(toks[i+1], eval_expressions(finalExpr))
                     listOfVariables.append(toks[i+1][4:] + "\t\t\t" + "INTEGER" + "\t\t\t" + str(eval_expressions(finalExpr)) + "\n")
 
                     if toks[i] == "DINT":

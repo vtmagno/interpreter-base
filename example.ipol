@@ -1,1 +1,8 @@
+CREATE	
 DSTR stringmo WITH [I have a pen]
+GIVEYOU!! stringmo	
+DINT x WITH PLUS 1 MINUS 9 9	
+STORE 100 IN y	
+GIVEYOU!! x	
+GIVEYOU! y	
+RUPTURE	
