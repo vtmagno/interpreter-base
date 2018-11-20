@@ -143,7 +143,7 @@ def lexer(fileContents):
             token = ""
 
         # condition satisfied if token parsed evaluates to DSTR
-        elif token == "DINT":
+        elif token == "DINT ":
             # print("DINT found") # for debugging purposes only. signifies that the word DINT
             stringVarStarted = 1
             listOfTokens.append("DINT")
@@ -274,51 +274,88 @@ def parser(toks):
 
     i = 0
     lineNum = 0
-
+    
     while(i < len(toks)):
 
         # the i+=(NUM) line means how many tokens the parses will get
 
         # print("entered the parser") # for debugging purposes only
 
+		# this adds 1 to lineNum everytime the parser finishes a line
         lineNum += 1
-
+		
+		# this is for the lexeme CREATE.
         if toks[i] == "CREATE":
+		
+			# this adds the CREATE lexeme to the listOfLexemesAndTokens
             listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "PROGRAM_CREATE" + "\t\t\t\t" + "CREATE" + "\n")
+			
+			# this adds the lexeme create to the listOfTokens
+            i+=1
+
+        if toks[i] == "WITH":
+		
+			# this adds the CREATE lexeme to the listOfLexemesAndTokens
+            listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_ASSIGN_WITH_KEY" + "\t\t" + "WITH" + "\n")       
+
+			# this adds the lexeme create to the listOfTokens
             i+=1
 
         # for output
         elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU! VAR":
 
+			# this adds the GIVEYOU! lexeme to the listOfLexemesAndTokens
             if toks[i] == "GIVEYOU!":
+			
+				# this adds the GIVEYOU! lexeme to the listOfLexemesAndTokens
                 listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "OUTPUT" + "\t\t\t\t\t" + "GIVEYOU!" + "\n")            
 
+			# this adds the STRING lexeme to the listOfLexemesAndTokens
             if toks[i+1][0:6] == "STRING":
-                # print("FOUND STRING")
-                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t" + toks[i+1][7:] + "\n")            
+			
+				# this adds the STRING lexeme to the listOfLexemesAndTokens
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t" + toks[i+1][7:] + "\n")   
+
+				# this prints out the string given
                 print(toks[i+1][7:], end=" ")
 
+			# this adds the VAR lexeme to the listOfLexemesAndTokens
             elif toks[i+1][0:3] == "VAR":
-                #print("FOUND VAR")  
-                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")            
-                print(get_variable(toks[i+1]), end=" ")
+                
+				# this adds the VAR lexeme to the listOfLexemesAndTokens
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")           
 
+				# this prints out the var given
+                print(get_variable(toks[i+1]), end=" ")
+				
+			# this adds the lexeme create to the listOfTokens
             i+=2
 
         # for output
         elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU!! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU!! VAR":
 
+			# this adds the GIVEYOU!! lexeme to the listOfLexemesAndTokens
             if toks[i] == "GIVEYOU!!":
+			
+				# this adds the GIVEYOU!! lexeme to the listOfLexemesAndTokens
                 listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "OUTPUT_WITH_LINE" + "\t\t\t" + "GIVEYOU!!" + "\n")            
 
+			# this adds the STRING lexeme to the listOfLexemesAndTokens
             if toks[i+1][0:6] == "STRING":
-                # print("FOUND STRING")
-                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t" + toks[i+1][7:] + "\n")            
+ 
+				# this adds the STRING lexeme to the listOfLexemesAndTokens
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t" + toks[i+1][7:] + "\n")         
+
+				# this prints out the string given
                 print("\n" + toks[i+1][7:])
 
+			# this adds the VAR lexeme to the listOfLexemesAndTokens
             elif toks[i+1][0:3] == "VAR":
-                # print("FOUND VAR")  
-                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")            
+ 
+				# this adds the VAR lexeme to the listOfLexemesAndTokens
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")          
+
+				# this prints out the var given
                 print("\n" + get_variable(toks[i+1]))
 
             i+=2
@@ -355,11 +392,39 @@ def parser(toks):
 
             i+=2
 
+		# PLUS NUM NUM PLUS NUM NUM
+        # PLUS NUM NUM MINUS NUM NUM
+        # PLUS NUM NUM TIMES NUM NUM
+        # PLUS NUM NUM DIVBY NUM NUM
+        # PLUS NUM NUM MODU NUM NUM
+        elif toks[i][5:] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] == "PLUS NUM NUM PLUS NUM NUM" or toks[i][0:4] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] == "PLUS NUM NUM MINUS NUM NUM" or toks[i][0:4] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] == "PLUS NUM NUM TIMES NUM NUM" or toks[i][0:4] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] == "PLUS NUM NUM DIVBY NUM NUM" or toks[i][0:4] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] == "PLUS NUM NUM MODU NUM NUM":            
+            
+            print("YO")	
 
+            if toks[i+3][5:] == "PLUS":
+                print(toks[i+1][4:], '+', toks[i+2][4:])
+
+            elif toks[i+3][5:] == "MINUS":
+                print("YO")	
+
+            elif toks[i+3][5:] == "TIMES":
+                print((toks[i+1][4:] + toks[i+2][4:]) + (toks[i+4][4:] * toks[i+5][4:]))	
+
+            elif toks[i+3][5:] == "DIVBY":
+                print((toks[i+1][4:] + toks[i+2][4:]) + (toks[i+4][4:] / toks[i+5][4:]))	
+
+            elif toks[i+3][5:] == "MODU":
+                print((toks[i+1][4:] + toks[i+2][4:]) + (toks[i+4][4:] % toks[i+5][4:]))
+
+            i += 6            
+
+        print(toks[i][5:] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] )
+
+        #print(toks[i][5:] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3])
+        #print('(', toks[i+1][4:], '+', toks[i+2][4:], ') + (', toks[i+4][4:], '+', toks[i+5][4:], ')')
+        
         #elif toks[i] + " " + toks[i+1][0:3] == "GIVEME? VAR":
         #    get_input()
-
-        # print(toks[i][0:5] + " " + toks[i+1][0:3] + " " + toks[i+2][0:5] + " " + toks[i+3][0:3] + " " + toks[i+4][0:3])
 
 # ******************************************************** run_file() METHOD ********************************************************
 
