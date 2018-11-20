@@ -16,7 +16,7 @@ variableDictionary = {} # this dictionary will contain variables and their value
 
 def open_file(fileData):
     fileData = open(ipolFile, "r").read()
-    
+    fileData += "<EOF>"
     # print(fileData) # for debugging purposes only. this will print out the contents of the file
 
     return fileData
@@ -87,6 +87,7 @@ def lexer(fileContents):
                         # this inserts the token "NUM:0" after an EXPR NUM BLANK
                         if listOfTokens[-1] != listOfTokens[-1][0:3] == "NUM":
                             listOfTokens.append("NUM:0")
+                            token = ""
 
                         listOfTokens.append("EXPR:" + expr)
                         expr = ""        
@@ -138,13 +139,12 @@ def lexer(fileContents):
 
         # condition satisfied if token parsed evaluates to WITH
         elif token == "WITH ":
-            # print("WITH found") # for debugging purposes only. signifies that the word WITH
             listOfTokens.append("WITH")
             token = ""
 
         # condition satisfied if token parsed evaluates to DSTR
         elif token == "DINT ":
-            # print("DINT found") # for debugging purposes only. signifies that the word DINT
+            # print("FOUND DINT")
             stringVarStarted = 1
             listOfTokens.append("DINT")
             token = ""
@@ -152,7 +152,6 @@ def lexer(fileContents):
         # condition satisfied if token parsed evaluates to PLUS
         elif token == "PLUS":
             # print("PLUS found") # for debugging purposes only. signifies that the word PLUS
-            #listOfTokens.append("PLUS")
             exprStarted = 1
             expr += token
             token = ""    
@@ -160,7 +159,6 @@ def lexer(fileContents):
         # condition satisfied if token parsed evaluates to MINUS
         elif token == "MINUS":
             # print("MINUS found") # for debugging purposes only. signifies that the word MINUS
-            #listOfTokens.append("MINUS")
             exprStarted = 1
             expr += token
             token = ""  
@@ -168,7 +166,6 @@ def lexer(fileContents):
         # condition satisfied if token parsed evaluates to TIMES
         elif token == "TIMES":
             # print("MINUS found") # for debugging purposes only. signifies that the word MINUS
-            #listOfTokens.append("TIMES")
             exprStarted = 1
             expr += token
             token = ""  
@@ -176,7 +173,6 @@ def lexer(fileContents):
         # condition satisfied if token parsed evaluates to DIVBY
         elif token == "DIVBY":
             # print("DIVBY found") # for debugging purposes only. signifies that the word DIVBY
-            #listOfTokens.append("DIVBY")
             exprStarted = 1
             expr += token
             token = ""  
@@ -184,7 +180,6 @@ def lexer(fileContents):
         # condition satisfied if token parsed evaluates to MODU
         elif token == "MODU":
             # print("MODU found") # for debugging purposes only. signifies that the word MODU
-            #listOfTokens.append("MODU")
             exprStarted = 1
             expr += token
             token = ""  
@@ -243,6 +238,12 @@ def lexer(fileContents):
     #return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
     return listOfTokens
 
+# ******************************************************** eval_expressions() METHOD ********************************************************
+# This method evaluates expressions.
+
+def eval_expressions(expr):
+    return eval(expr)
+
 # ******************************************************** assign_variable() METHOD ********************************************************
 # This method assigns a value to a variable name in the variableDictionary.
 
@@ -274,7 +275,10 @@ def parser(toks):
 
     i = 0
     lineNum = 0
-    
+
+    exprString = ""
+    finalExpr = ""
+
     while(i < len(toks)):
 
         # the i+=(NUM) line means how many tokens the parses will get
@@ -282,15 +286,18 @@ def parser(toks):
         # print("entered the parser") # for debugging purposes only
 
 		# this adds 1 to lineNum everytime the parser finishes a line
-        lineNum += 1
 		
 		# this is for the lexeme CREATE.
         if toks[i] == "CREATE":
 		
+            lineNum += 1
+
 			# this adds the CREATE lexeme to the listOfLexemesAndTokens
             listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "PROGRAM_CREATE" + "\t\t\t\t" + "CREATE" + "\n")
 			
 			# this adds the lexeme create to the listOfTokens
+    
+
             i+=1
 
         if toks[i] == "WITH":
@@ -303,6 +310,8 @@ def parser(toks):
 
         # for output
         elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU! VAR":
+
+            lineNum += 1
 
 			# this adds the GIVEYOU! lexeme to the listOfLexemesAndTokens
             if toks[i] == "GIVEYOU!":
@@ -334,6 +343,8 @@ def parser(toks):
         # for output
         elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU!! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU!! VAR":
 
+            lineNum += 1
+
 			# this adds the GIVEYOU!! lexeme to the listOfLexemesAndTokens
             if toks[i] == "GIVEYOU!!":
 			
@@ -360,71 +371,68 @@ def parser(toks):
 
             i+=2
 
-        # for assigning variables
-        elif toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:6] == "DSTR VAR WITH STRING" or toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:3] == "DSTR VAR WITH NUM": 
-            # print(toks[i+2]) # for debugging purposes only!
-
-            # this is for the LEXEMES AND TOKENS TABLE
-            if toks[i] == "DSTR":
-                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_STRING" + "\t\t\t" + "DSTR" + "\n")
-            
-            if toks[i+1][0:3] == "VAR":
-                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")
-
-            if toks[i+2] == "WITH":
-                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_ASSIGN_WITH_KEY" + "\t\t" + "WITH" + "\n")       
-
-            if toks[i+3][0:6] == "STRING":
-                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t\t\t" + toks[i+3][7:] + "\n")       
-                listOfVariables.append(toks[i+1][4:] + "\t\t" + "STRING" + "\t\t\t" + toks[i+3][7:])
-
-            if toks[i+3][0:6] == "STRING":
-                assign_variable(toks[i+1], toks[i+3][7:])
-
-            i+=4
-
         elif toks[i] + " " + toks[i+1][0:3] == "DSTR VAR" or toks[i] + " " + toks[i+1][0:3] == "DINT VAR":
+
+            print("ENTERED")
             
-            if toks[i+1] == "DSTR":
-                assign_variable(toks[i+1], "")
-            elif toks[i+1] == "DINT": 
-                assign_variable(toks[i+1], 0)
+            if toks[i+2] == "":
 
-            i+=2
+                lineNum += 1
 
-		# PLUS NUM NUM PLUS NUM NUM
-        # PLUS NUM NUM MINUS NUM NUM
-        # PLUS NUM NUM TIMES NUM NUM
-        # PLUS NUM NUM DIVBY NUM NUM
-        # PLUS NUM NUM MODU NUM NUM
-        elif toks[i][5:] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] == "PLUS NUM NUM PLUS NUM NUM" or toks[i][0:4] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] == "PLUS NUM NUM MINUS NUM NUM" or toks[i][0:4] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] == "PLUS NUM NUM TIMES NUM NUM" or toks[i][0:4] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] == "PLUS NUM NUM DIVBY NUM NUM" or toks[i][0:4] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] == "PLUS NUM NUM MODU NUM NUM":            
-            
-            print("YO")	
+                if toks[i+1] == "DSTR":
+                    assign_variable(toks[i+1], "")
+                elif toks[i+1] == "DINT": 
+                    assign_variable(toks[i+1], 0)
 
-            if toks[i+3][5:] == "PLUS":
-                print(toks[i+1][4:], '+', toks[i+2][4:])
+                i+=2
 
-            elif toks[i+3][5:] == "MINUS":
-                print("YO")	
+            elif toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:6] == "DSTR VAR WITH STRING" or toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:3] == "DSTR VAR WITH NUM":
+                
+                lineNum += 1
 
-            elif toks[i+3][5:] == "TIMES":
-                print((toks[i+1][4:] + toks[i+2][4:]) + (toks[i+4][4:] * toks[i+5][4:]))	
+                    # this is for the LEXEMES AND TOKENS TABLE
+                if toks[i] == "DSTR":
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_STRING" + "\t\t\t" + "DSTR" + "\n")
+                
+                if toks[i+1][0:3] == "VAR":
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")
 
-            elif toks[i+3][5:] == "DIVBY":
-                print((toks[i+1][4:] + toks[i+2][4:]) + (toks[i+4][4:] / toks[i+5][4:]))	
+                if toks[i+2] == "WITH":
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_ASSIGN_WITH_KEY" + "\t\t" + "WITH" + "\n")       
 
-            elif toks[i+3][5:] == "MODU":
-                print((toks[i+1][4:] + toks[i+2][4:]) + (toks[i+4][4:] % toks[i+5][4:]))
+                if toks[i+3][0:6] == "STRING":
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING" + "\t\t\t\t\t" + toks[i+3][7:] + "\n")       
+                    listOfVariables.append(toks[i+1][4:] + "\t\t" + "STRING" + "\t\t\t" + toks[i+3][7:] + "\n")
 
-            i += 6            
+                if toks[i+3][0:6] == "STRING":
+                    assign_variable(toks[i+1], toks[i+3][7:])
 
-        print(toks[i][5:] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] )
+                i+=4
 
-        #print(toks[i][5:] + " " + toks[i+1][0:3]  + " " + toks[i+2][0:3] + " " + toks[i+3][5:] + " " + toks[i+4][0:3] + " " + toks[i+5][0:3])
-        #print('(', toks[i+1][4:], '+', toks[i+2][4:], ') + (', toks[i+4][4:], '+', toks[i+5][4:], ')')
-        
-        #elif toks[i] + " " + toks[i+1][0:3] == "GIVEME? VAR":
-        #    get_input()
+            elif toks[i+2]:
+
+                if toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][5:]  + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] + " " + toks[i+6][5:] + " " + toks[i+7][0:3] + " " + toks[i+8][0:3] == "DINT VAR WITH PLUS NUM NUM MINUS NUM NUM":
+
+                    lineNum += 1
+
+                    exprString = "(",toks[i+4][4:], "+", toks[i+5][4:], ")+(", toks[i+7][4:], "-", toks[i+8][4:], ")"
+                    finalExpr = ''.join(map(str, exprString))
+
+                    assign_variable(toks[i+1][4:], eval_expressions(finalExpr))
+                    listOfVariables.append(toks[i+1][4:] + "\t\t\t" + "INTEGER" + "\t\t\t" + str(eval_expressions(finalExpr)) + "\n")
+
+                    if toks[i] == "DINT":
+                        listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_STRING" + "\t\t\t" + "DINT" + "\n")
+                    if toks[i+1][0:3] == "VAR":
+                        listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")
+                    if toks[i+2] == "WITH":
+                        listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_ASSIGN_WITH_KEY" + "\t\t" + "WITH" + "\n")      
+                    if toks[i+3][5:] == "PLUS":
+                        listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "BASIC_OPERATOR" + "\t\t\t\t" + "PLUS" + "\n")             
+
+                    i+=9
+
+        # DINT VAR WITH PLUS NUM NUM MINUS NUM NUM
 
 # ******************************************************** run_file() METHOD ********************************************************
 
