@@ -409,6 +409,29 @@ def parser(toks):
 
                 i+=4
 
+            elif toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][0:3] == "DINT VAR WITH NUM":
+                
+                lineNum += 1
+
+                    # this is for the LEXEMES AND TOKENS TABLE
+                if toks[i] == "DSTR":
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_STRING" + "\t\t\t" + "DINT" + "\n")
+                
+                if toks[i+1][0:3] == "VAR":
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")
+
+                if toks[i+2] == "WITH":
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_ASSIGN_WITH_KEY" + "\t\t" + "WITH" + "\n")       
+
+                if toks[i+3][0:6] == "NUM":
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INTEGER" + "\t\t\t\t\t" + toks[i+3][3:] + "\n")       
+                    listOfVariables.append(toks[i+1][4:] + "\t\t" + "INTEGER" + "\t\t\t" + toks[i+3][3:] + "\n")
+
+                if toks[i+3][0:3] == "NUM":
+                    assign_variable(toks[i+1], toks[i+3][4:])
+
+                i+=4
+
             elif toks[i+2]:
 
                 if toks[i] + " " + toks[i+1][0:3] + " " + toks[i+2] + " " + toks[i+3][5:]  + " " + toks[i+4][0:3] + " " + toks[i+5][0:3] + " " + toks[i+6][5:] + " " + toks[i+7][0:3] + " " + toks[i+8][0:3] == "DINT VAR WITH PLUS NUM NUM MINUS NUM NUM":
