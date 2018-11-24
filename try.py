@@ -286,7 +286,7 @@ def assign_variable(varName, varValue):
     varType = ""
 
     if varValue.isdigit() or varValue == 0:
-        varType = "INTEGER"
+        varType = "\tINTEGER"
     else:
         varType = "STRING"
 
@@ -615,6 +615,50 @@ def parser(toks):
                     assign_variable(toks[i+1], str(eval_expressions(finalExpr)))
                     i+=10               
 
+        elif toks[i] == "DSTR":
+
+            err = 0
+
+            # -------------------------------------------- for DSTR VAR only
+            if err == 0:
+            
+                err = match_syntax(toks[i+1][0:3], "VAR")
+                err = match_syntax(toks[i+2], ":")
+
+                if err == 0:
+
+                    lineNum +=1 
+
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARE_INTEGER" + "\t\t\t\t" + "DSTR" + "\n")
+
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")
+                    
+                    assign_variable(toks[i+1], "")
+                    i += 3
+
+            # -------------------------------------------- for DINT VAR WITH STRING only	
+            
+            if err == 1:
+
+                err = match_syntax(toks[i+3][0:6], "STRING")
+                err = match_syntax(toks[i+4], ":")
+
+                if err == 0:
+
+                    lineNum += 1
+
+                    #DSTR
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARE_INTEGER" + "\t\t\t\t" + "DINT" + "\n")
+                    #VAR
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")
+                    #WITH
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_ASSIGN_WITH_KEY " + "\t\t" + "WITH" + "\n")    
+                    #STRING
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING " + "\t\t\t\t" + toks[i+3][7:] + "\n")                    
+                  
+                    assign_variable(toks[i+1], toks[i+3][7:])
+                    i+=5
+
         # DINT VAR WITH PLUS NUM NUM MINUS NUM NUM
 
 # ******************************************************** run_file() METHOD ********************************************************
@@ -654,7 +698,7 @@ while True:
         lexemes_tokens()
         print("")
         print("========================= SYMBOL TABLE ======================================")
-        print("Variable Name\t\tType\t\t\tValue ")
+        print("Variable Name\t\t\tType\t\t\tValue ")
         variables_table()
 
         print("")
