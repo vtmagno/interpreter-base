@@ -76,12 +76,10 @@ def lexer(fileContents):
 
         # ignore spaces
         if token == " ":
-
             if foundBracket == 0:
                 stringVarStarted = 1
                 token = ""
                 
-
             # gets the variable name after the DSTR and DINT keyword
             if stringVarStarted == 1:
 
@@ -234,6 +232,12 @@ def lexer(fileContents):
             expr += token
             token = ""  
 
+        elif token == "MEAN":
+            # print("ROOT found") # for debugging purposes only. signifies that the word MODU
+            exprStarted = 1
+            expr += token
+            token = ""  
+
         elif token == "RAISE":
             # print("RAISE found") # for debugging purposes only. signifies that the word MODU
             exprStarted = 1
@@ -307,12 +311,6 @@ def lexer(fileContents):
         print("Error. File must begin with CREATE.")
         quit()
 
-    try:
-        if listOfTokens[-3] != "RUPTURE":
-            print("Error. File must end with RUPTURE.")
-            quit()
-    except IndexError:
-        print("Error. File must end with RUPTURE.")
         
     #print(token) # for debugging purposes only. prints every parsed character
     #print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
