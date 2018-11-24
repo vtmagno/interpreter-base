@@ -345,7 +345,6 @@ def parser(toks):
 		# this adds 1 to lineNum everytime the parser finishes a line
 		
 		# this is for the lexeme CREATE.
-
         if toks[i] == "CREATE":
 		
             lineNum += 1
@@ -420,7 +419,7 @@ def parser(toks):
                 print("\n" + get_variable(toks[i+1]), sep='')
 				
 			# this adds the lexeme create to the listOfTokens
-            i+=2
+            i+=3
 
         # for output
         elif toks[i] + " " + toks[i+1][0:6] == "GIVEYOU!! STRING" or toks[i] + " " + toks[i+1][0:3] == "GIVEYOU!! VAR":
@@ -443,15 +442,15 @@ def parser(toks):
                 print("\n" + toks[i+1][7:])
 
 			# this adds the VAR lexeme to the listOfLexemesAndTokens
-            elif toks[i][0:3] == "VAR":
+            elif toks[i+1][0:3] == "VAR":
  
 				# this adds the VAR lexeme to the listOfLexemesAndTokens
-                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i][4:] + "\n")          
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")          
 
 				# this prints out the var given
-                print("\n" + str(get_variable(toks[i])))
+                print("\n" + str(get_variable(toks[i+1])))
 
-            i+=2
+            i+=3
 
         elif toks[i] == "DINT":
 
@@ -615,6 +614,7 @@ def parser(toks):
                     assign_variable(toks[i+1], str(eval_expressions(finalExpr)))
                     i+=10               
 
+        # -------------------------------------------- for DSTR
         elif toks[i] == "DSTR":
 
             err = 0
@@ -654,12 +654,37 @@ def parser(toks):
                     #WITH
                     listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_ASSIGN_WITH_KEY " + "\t\t" + "WITH" + "\n")    
                     #STRING
-                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING " + "\t\t\t\t" + toks[i+3][7:] + "\n")                    
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "STRING " + "\t\t\t\t\t" + toks[i+3][7:] + "\n")                    
                   
                     assign_variable(toks[i+1], toks[i+3][7:])
                     i+=5
 
-        # DINT VAR WITH PLUS NUM NUM MINUS NUM NUM
+        elif toks[i] == "STORE":
+
+            err = 0
+
+            # -------------------------------------------- for STORE NUM IN VAR only
+            if err == 0:
+            
+                err = match_syntax(toks[i+1][0:3], "NUM")
+                err = match_syntax(toks[i+2], "IN")
+                err = match_syntax(toks[i+3][0:3], "VAR")
+
+                if err == 0:
+
+                    lineNum +=1 
+
+                    #STORE
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "ASSIGN_KEY" + "\t\t\t\t" + "STORE" + "\n")
+                    #NUM
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INTEGER" + "\t\t\t\t\t" + toks[i+1][4:] + "\n")
+                    #IN
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "ASSIGN_VAR_KEY" + "\t\t\t\t" + "IN" + "\n")
+                    #VAR
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INDENTIFIER" + "\t\t\t\t" + toks[i+3][4:] + "\n")
+
+                    assign_variable(toks[i+3], toks[i+1][4:])
+                    i += 5
 
 # ******************************************************** run_file() METHOD ********************************************************
 
