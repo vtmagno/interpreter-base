@@ -315,7 +315,7 @@ def lexer(fileContents):
         print("Error. File must end with RUPTURE.")
         
     #print(token) # for debugging purposes only. prints every parsed character
-    print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
+    #print(listOfTokens) # for debugging purposes only. this shows the contents of the list made by both the parser and lexer
     #return '' # for debugging purposes only. avoids listIndex out of range error when removing return token
     return listOfTokens
 
@@ -441,9 +441,14 @@ def parser(toks):
 
             lineNum += 1
 
-            variable_Input = input("GIVEME? ")
+            variable_Input = input("What is your name? ")
 
-            assign_variable(toks[i+1][:4], variable_Input)  
+            #GIVEME?
+            listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INPUT" + "\t\t\t\t\t" + "GIVEME?" + "\n")  
+            #VAR
+            listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")       
+
+            assign_variable(toks[i+1], variable_Input)  
 
             i+=3
 
