@@ -124,9 +124,14 @@ def lexer(fileContents):
         elif token == "<EOF>":
             listOfTokens.append("<EOF>")
             token = ""        
+            
+        elif token == "\n" or token=="":
+            listOfTokens.append(":")
+            token = ""
 
         elif token == "\n" or token == "\t":
             # print("FOUND NEW LINE") # for debugging purposes only. signifies that a new line was found.
+            #listOfTokens.append(":")
             token = ""
 
             # this was added so that variables that aren't after the keywords DSTR and DINT are taken as variables
@@ -340,6 +345,7 @@ def parser(toks):
 		# this adds 1 to lineNum everytime the parser finishes a line
 		
 		# this is for the lexeme CREATE.
+
         if toks[i] == "CREATE":
 		
             lineNum += 1
@@ -351,6 +357,9 @@ def parser(toks):
 
             i+=1
 
+        if toks[i] == ":":
+            i+=1
+
         elif toks[i] == "RUPTURE":
 		
             lineNum += 1
@@ -360,7 +369,7 @@ def parser(toks):
 			
 			# this adds the lexeme create to the listOfTokens
 
-            i+=1
+            i+=2
 
         elif toks[i] == "<EOF>":
 		
@@ -434,13 +443,13 @@ def parser(toks):
                 print("\n" + toks[i+1][7:])
 
 			# this adds the VAR lexeme to the listOfLexemesAndTokens
-            elif toks[i+1][0:3] == "VAR":
+            elif toks[i][0:3] == "VAR":
  
 				# this adds the VAR lexeme to the listOfLexemesAndTokens
-                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")          
+                listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "IDENTIFIER" + "\t\t\t\t" + toks[i][4:] + "\n")          
 
 				# this prints out the var given
-                print("\n" + str(get_variable(toks[i+1])))
+                print("\n" + str(get_variable(toks[i])))
 
             i+=2
 
@@ -458,9 +467,9 @@ def parser(toks):
             if err == 0:
             
                 err = match_syntax(toks[i+1][0:3], "VAR")
-                err = match_syntax(toks[i+2][0:3], "VAR")
+                err = match_syntax(toks[i+2], ":")
 
-                if err == 1:
+                if err == 0:
 
                     lineNum +=1 
 
@@ -469,16 +478,18 @@ def parser(toks):
                     listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")
                     
                     assign_variable(toks[i+1], "0")
-                    i += 2
-                    err = 1
-
+                    i += 3
+                    
             # -------------------------------------------- for DINT VAR WITH NUM only	
-            if err == 0:
+            
+            if err == 1:
 
                 err = match_syntax(toks[i+3][0:3], "NUM")
-                err = match_syntax(toks[i+4][0:3], "NUM")
+                err = match_syntax(toks[i+4], ":")
 
-                if err == 1:
+                if err == 0:
+
+                    lineNum += 1
 
                     #DINT
                     listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARE_INTEGER" + "\t\t\t\t" + "DINT" + "\n")
@@ -490,31 +501,30 @@ def parser(toks):
                     listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INTEGER " + "\t\t\t\t" + toks[i+3][4:] + "\n")                    
                   
                     assign_variable(toks[i+1], toks[i+3][4:])
-                    i+=4  
-                    err = 1
+                    i+=5
 
             # -------------------------------------------- for DINT VAR WITH EXPR NUM NUM only	
-            if err == 0:
+            if err == 1:
 
                 err = match_syntax(toks[i+3][0:4], "EXPR")
                 err = match_syntax(toks[i+4][0:3], "NUM")
                 err = match_syntax(toks[i+5][0:3], "NUM")
-                err = match_syntax(toks[i+6][0:3], "NUM")
+                err = match_syntax(toks[i+6], ":")
 
-                if err == 1:
+                if err == 0:
 
                     lineNum +=1
 
                     #DINT
                     listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARE_INTEGER" + "\t\t\t\t" + "DINT" + "\n")
                     #VAR
-                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INDENTIFIER" + "\t\t\t\t" + toks[i+1][:4] + "\n")
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INDENTIFIER" + "\t\t\t\t" + toks[i+1][4:] + "\n")
                     #WITH
                     listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "DECLARATION_ASSIGN_WITH_KEY " + "\t\t" + "WITH" + "\n")    
                     #EXPR
                     listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "BASIC_OPERATOR" + "\t\t\t\t" + toks[i+3][:4] + "\n")    
                     #NUM
-                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INTEGER " + "\t\t\t\t" + toks[i+5][4:] + "\n")
+                    listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INTEGER " + "\t\t\t\t" + toks[i+4][4:] + "\n")
                     # IF SECOND NUM IS NOT EQUAL TO 0
                     if toks[i+5][0:4] != "0":
                         listOfLexemesAndTokens.append("[" + str(lineNum) + "]" + "\t\t\t" + "INTEGER " + "\t\t\t\t" + toks[i+5][4:] + "\n")
@@ -538,11 +548,10 @@ def parser(toks):
 
                     assign_variable(toks[i+1], str(eval_expressions(finalExpr)))
 
-                    i+=6    
-                    err = 1
+                    i+=7
 
             # -------------------------------------------- for DINT VAR WITH EXPR NUM NUM EXPR NUM NUM only	
-            if err == 0:                
+            if err == 1:                
 
                 # DINT VAR WITH EXPR NUM NUM EXPR NUM NUM
                 err = match_syntax(toks[i+3][0:4], "EXPR")
@@ -550,9 +559,11 @@ def parser(toks):
                 err = match_syntax(toks[i+5][0:3], "NUM")
                 err = match_syntax(toks[i+6][0:4], "EXPR")
                 err = match_syntax(toks[i+7][0:3], "NUM")
-                err = match_syntax(toks[i+7][0:3], "NUM")
+                err = match_syntax(toks[i+8][0:3], "NUM")
 
-                if err == 1:
+                
+
+                if err == 0:
 
                     lineNum +=1
 
@@ -602,7 +613,7 @@ def parser(toks):
                     finalExpr = ''.join(map(str, exprString))
 
                     assign_variable(toks[i+1], str(eval_expressions(finalExpr)))
-                    i+=9                       
+                    i+=10               
 
         # DINT VAR WITH PLUS NUM NUM MINUS NUM NUM
 
